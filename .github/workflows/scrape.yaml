@@ -6,7 +6,7 @@ on:
       - .github/workflows/scrape.yml
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 0 * * *'
 
 jobs:
   scheduled:
@@ -17,10 +17,9 @@ jobs:
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - name: Check out repo
         uses: actions/checkout@v2
-      - name: Setup deno
-        uses: denoland/setup-deno@main
+      - uses: actions/setup-node@v2
         with:
-          deno-version: v1.x
+          node-version: '16'
       - name: Fetch data
         uses: githubocto/flat@v3
         with:
