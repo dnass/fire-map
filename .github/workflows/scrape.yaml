@@ -12,6 +12,9 @@ jobs:
   scheduled:
     runs-on: ubuntu-latest
     steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - name: Check out repo
         uses: actions/checkout@v2
       - name: Setup deno
@@ -21,6 +24,6 @@ jobs:
       - name: Fetch data
         uses: githubocto/flat@v3
         with:
-          http_url: https://cwfis.cfs.nrcan.gc.ca/geoserver/public/wfs?SERVICE=WFS&REQUEST=GetFeature&FORMAT=test&TYPENAME=public%3Aactivefires_current&CRS=EPSG%3A3978
-          downloaded_filename: data/fires.json
+          http_url: https://cwfis.cfs.nrcan.gc.ca/geoserver/public/wfs?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=application/json&TYPENAME=public:activefires_current
+          downloaded_filename: data/fires-${{ steps.date.outputs.date }}.json
           postprocess: postprocess.js
