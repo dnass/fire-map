@@ -1,0 +1,26 @@
+name: Scrape
+
+on:
+  push:
+    paths:
+      - .github/workflows/scrape.yml
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+
+jobs:
+  scheduled:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+      - name: Setup deno
+        uses: denoland/setup-deno@main
+        with:
+          deno-version: v1.x
+      - name: Fetch data
+        uses: githubocto/flat@v3
+        with:
+          http_url: https://cwfis.cfs.nrcan.gc.ca/geoserver/public/wfs?SERVICE=WFS&REQUEST=GetFeature&FORMAT=test&TYPENAME=public%3Aactivefires_current&CRS=EPSG%3A3978
+          downloaded_filename: data/fires.json
+          postprocess: postprocess.js
