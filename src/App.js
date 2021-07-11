@@ -91,6 +91,7 @@ const App = () => {
           <Layer
             id='hillshade'
             type='hillshade'
+            paint={{ 'hillshade-highlight-color': 'rgba(255, 255, 255, 0.5)' }}
             beforeId='waterway-river-canal'
           />
         </Source>
