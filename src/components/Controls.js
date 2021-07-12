@@ -3,13 +3,12 @@ import { useState, useEffect } from 'react';
 import format from 'date-fns/format';
 import preval from 'preval.macro';
 import Chart from './Chart';
-import { dateRange, cumulative } from '../data';
 
 const formatHa = n => `${Math.round(n).toLocaleString()} ha`;
 
 const lastUpdated = preval`module.exports = +new Date();`;
 
-const Controls = ({ date, setDate }) => {
+const Controls = ({ date, setDate, dateRange, cumulative }) => {
   const [playing, setPlaying] = useState(false);
 
   const changeDate = increment => {
@@ -32,7 +31,7 @@ const Controls = ({ date, setDate }) => {
 
   const today = cumulative.find(d => d.date >= date);
 
-  return (
+  return date ? (
     <div className='panel'>
       <div className='date'>{format(date, 'MMM d, yyyy')}</div>
       <div className='controls'>
@@ -61,11 +60,11 @@ const Controls = ({ date, setDate }) => {
             <span>{formatHa(today.areaCumulative)}</span>
           </div>
         </div>
-        <Chart data={cumulative} date={date} />
+        <Chart {...{ data: cumulative, date, dateRange }} />
       </div>
       <div className='label'>Last updated: {format(lastUpdated, 'PPpp')}</div>
     </div>
-  );
+  ) : null;
 };
 
 export default Controls;

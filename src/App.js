@@ -1,16 +1,31 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Map from './components/Map';
 import Controls from './components/Controls';
-import { dateRange } from './data';
+import { parseData } from './utils';
 
 const App = () => {
-  const [date, setDate] = useState(dateRange[1]);
+  const [perimeters, setPerimeters] = useState([]);
+  const [dateRange, setDateRange] = useState([]);
+  const [cumulative, setCumulative] = useState([]);
+  const [date, setDate] = useState();
+
+  useEffect(() => {
+    (async () => {
+      const data = await import('./data/perimeters.json');
+      const { perimeters, dateRange, cumulative } = parseData(data);
+
+      setPerimeters(perimeters);
+      setDateRange(dateRange);
+      setCumulative(cumulative);
+      setDate(dateRange[1]);
+    })();
+  }, []);
 
   return (
     <div className='App'>
-      <Controls date={date} setDate={setDate} />
-      <Map date={date} />
+      <Controls {...{ date, setDate, dateRange, cumulative }} />
+      <Map {...{ date, perimeters }} />
     </div>
   );
 };

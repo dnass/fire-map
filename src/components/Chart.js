@@ -1,12 +1,11 @@
 import { scaleLinear } from 'd3-scale';
 import { area } from 'd3-shape';
 import { extent } from 'd3-array';
-import { dateRange } from '../data';
 
 const width = 128,
   height = 64;
 
-const Chart = ({ data, date }) => {
+const Chart = ({ data, date, dateRange }) => {
   const x = scaleLinear().domain(dateRange).range([0, width]);
 
   const y = scaleLinear()
