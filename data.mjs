@@ -15,7 +15,7 @@ const input = files.reduce((obj, filename, i) => {
   return obj;
 }, {});
 
-const cmd = `-i progression.shp -proj wgs84 -clean -each 'd = DATE + ""; this.properties = { date: [d.slice(0,4), d.slice(4,6), d.slice(6,8)].join("-") }' -o out.json format=topojson`;
+const cmd = `-i progression.shp -proj wgs84 -clean -each 'd = DATE + ""; this.properties = { date: [d.slice(0,4), d.slice(4,6), d.slice(6,8)].join("-"), area: AREA }' -o out.json format=topojson`;
 
 const { 'out.json': output } = await mapshaper.applyCommands(cmd, input);
 
