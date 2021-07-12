@@ -39,8 +39,8 @@
   display: block;
 }
 
-.controls .label {
+.label {
   font-size: 0.7em;
   margin-top: 3px;
-  opacity: 0.9;
+  opacity: 0.8;
 }

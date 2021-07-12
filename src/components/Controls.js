@@ -2,7 +2,7 @@ import './Controls.css';
 import { useState, useEffect } from 'react';
 import format from 'date-fns/format';
 import Chart from './Chart';
-import { dateRange, cumulative } from '../data';
+import { dateRange, cumulative, updated } from '../data';
 
 const formatHa = n => `${Math.round(n).toLocaleString()} ha`;
 
@@ -60,6 +60,7 @@ const Controls = ({ date, setDate }) => {
         </div>
         <Chart data={cumulative} date={date} />
       </div>
+      <div className='label'>Last updated: {format(updated, 'PPpp')}</div>
     </div>
   );
 };
