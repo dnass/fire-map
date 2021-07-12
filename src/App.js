@@ -1,58 +1,94 @@
 import './App.css';
-import { useState } from 'react';
-import MapGL, { Source, Layer, GeolocateControl } from 'react-map-gl';
+import { useState, useEffect } from 'react';
+import MapGL, {
+  Source,
+  Layer,
+  GeolocateControl,
+  WebMercatorViewport,
+  AttributionControl
+} from 'react-map-gl';
+import { scaleLinear } from 'd3-scale';
 import { perimeters, dateRange } from './data';
-import union from '@turf/union';
-import buffer from '@turf/buffer';
+import differenceInDays from 'date-fns/differenceInDays';
 
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoiZG5sbnNzIiwiYSI6ImNrcXk0b2w0ejE0eGgyc3RmMGhhaXV5MjYifQ.ZLXTR3Qb8ZLP9zSit_Rz0w';
 
-const fill = { 'fill-color': 'tomato' };
+const ONE_DAY = 86400000;
 
-const linePaint = {
-  'line-blur': 5,
-  'line-color': 'tomato'
+const fill = {
+  'fill-color': 'tomato',
+  'fill-outline-color': 'rgba(0,0,0,0)',
+  'fill-opacity': ['get', 'opacity']
 };
 
 const lineLayout = {
   'line-join': 'bevel'
 };
 
+const opacity = scaleLinear().domain([0, 7]).range([0.9, 0.3]).clamp(true);
+
 const App = () => {
-  const [viewport, setViewport] = useState({
-    latitude: 60,
-    longitude: -100,
-    zoom: 3,
-    bearing: 0,
-    pitch: 0
-  });
+  const [viewport, setViewport] = useState(
+    new WebMercatorViewport({
+      width: window.innerWidth,
+      height: window.innerHeight
+    }).fitBounds([
+      [-135, 42],
+      [-61, 63]
+    ])
+  );
 
   const [date, setDate] = useState(dateRange[1]);
 
-  const filteredPerimeters = {
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (playing && date < dateRange[1]) {
+        setDate(date + ONE_DAY);
+      } else {
+        setPlaying(false);
+      }
+    }, 250);
+
+    return () => clearInterval(interval);
+  });
+
+  const perimeter = {
     type: 'FeatureCollection',
-    features: perimeters.filter(d => d.properties.date <= date)
+    features: perimeters
+      .map(d => {
+        d.properties.diff = differenceInDays(date, d.properties.date);
+        d.properties.opacity = opacity(d.properties.diff);
+        return d;
+      })
+      .filter(d => d.properties.diff >= 0)
   };
 
-  // const filteredPerimeters = union(
-  //   ...perimeters.filter(d => d.properties.date <= date)
-  // );
-
-  // console.log(filteredPerimeters);
+  const play = () => {};
 
   return (
     <div className='App'>
-      <button onClick={() => setDate(date - 86400000)}>–</button>
-      <button onClick={() => setDate(date + 86400000)}>+</button>
-      <input
-        type='range'
-        min={+dateRange[0]}
-        max={+dateRange[1]}
-        value={date}
-        onChange={e => setDate(+e.target.value)}
-      />
-      {new Date(date).toLocaleDateString()}
+      <div className='controls'>
+        <button onClick={() => setDate(Math.max(date - ONE_DAY, dateRange[0]))}>
+          ⏮️
+        </button>
+        <button onClick={() => setPlaying(!playing)}>
+          {playing ? '⏸️' : '▶️'}
+        </button>
+        <button onClick={() => setDate(Math.min(date + ONE_DAY, dateRange[1]))}>
+          ⏭️
+        </button>
+        <input
+          type='range'
+          min={+dateRange[0]}
+          max={+dateRange[1]}
+          value={date}
+          onChange={e => setDate(+e.target.value)}
+        />
+        <span>{new Date(date).toLocaleDateString()}</span>
+      </div>
       <MapGL
         {...viewport}
         width='100%'
@@ -60,15 +96,16 @@ const App = () => {
         mapStyle='mapbox://styles/mapbox/dark-v9'
         onViewportChange={setViewport}
         mapboxApiAccessToken={MAPBOX_TOKEN}
+        attributionControl={false}
       >
         <GeolocateControl
           showUserLocation={false}
           fitBoundsOptions={{ maxZoom: 8 }}
           style={{ right: 10, top: 10 }}
         />
-        <Source type='geojson' data={filteredPerimeters}>
-          <Layer id='firefill' type='fill' paint={fill} />
-          {[12, 8, 4, 1].map(width => {
+        <Source type='geojson' data={perimeter}>
+          <Layer id='outerfill' type='fill' paint={fill} />
+          {[10, 7, 4, 1].map(width => {
             const bright = width === 1;
 
             return (
@@ -80,7 +117,13 @@ const App = () => {
                   'line-blur': width,
                   'line-width': width,
                   'line-color': bright ? '#ffa291' : 'tomato',
-                  'line-opacity': 0.8
+                  'line-opacity': [
+                    'step',
+                    ['zoom'],
+                    0,
+                    7,
+                    ['case', ['==', ['get', 'opacity'], 0.9], 0.7, 0]
+                  ]
                 }}
                 layout={lineLayout}
               />
@@ -91,10 +134,24 @@ const App = () => {
           <Layer
             id='hillshade'
             type='hillshade'
-            paint={{ 'hillshade-highlight-color': 'rgba(255, 255, 255, 0.5)' }}
+            paint={{
+              'hillshade-highlight-color': 'rgba(200, 200, 200, 0.4)',
+              'hillshade-shadow-color': 'rgba(25, 25, 25, 0.6)'
+            }}
             beforeId='waterway-river-canal'
           />
         </Source>
+        <AttributionControl
+          style={{
+            bottom: 0,
+            right: 0,
+            fontFamily: 'sans-serif',
+            fontSize: 12
+          }}
+          customAttribution={
+            'By <a href="https://danielnass.net">Daniel Nass</a> | Data from <a href="https://cwfis.cfs.nrcan.gc.ca/index.php/datamart/metadata/fm3buffered">Canadian Forest Service</a>'
+          }
+        />
       </MapGL>
     </div>
   );
