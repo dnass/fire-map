@@ -1,10 +1,12 @@
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { useState } from 'react';
 import MapGL, {
   Source,
   Layer,
   GeolocateControl,
-  WebMercatorViewport,
-  AttributionControl
+  AttributionControl,
+  ScaleControl,
+  WebMercatorViewport
 } from 'react-map-gl';
 import { scaleLinear } from 'd3-scale';
 import differenceInDays from 'date-fns/differenceInDays';
@@ -93,6 +95,10 @@ const Map = ({ date, perimeters }) => {
           beforeId='waterway-river-canal'
         />
       </Source>
+      <ScaleControl
+        maxWidth={120}
+        style={{ left: 5, bottom: 40, fontFamily: 'sans-serif' }}
+      />
       <AttributionControl
         style={{
           bottom: 0,
