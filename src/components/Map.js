@@ -6,11 +6,16 @@ import MapGL, {
   WebMercatorViewport,
   AttributionControl
 } from 'react-map-gl';
+import { scaleLinear } from 'd3-scale';
+import differenceInDays from 'date-fns/differenceInDays';
+import { perimeters } from '../data';
 
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoiZG5sbnNzIiwiYSI6ImNrcXk0b2w0ejE0eGgyc3RmMGhhaXV5MjYifQ.ZLXTR3Qb8ZLP9zSit_Rz0w';
 
-const Map = ({ data }) => {
+const opacity = scaleLinear().domain([0, 7]).range([0.9, 0.3]).clamp(true);
+
+const Map = ({ date }) => {
   const [viewport, setViewport] = useState(
     new WebMercatorViewport({
       width: window.innerWidth,
@@ -20,6 +25,17 @@ const Map = ({ data }) => {
       [-61, 63]
     ])
   );
+
+  const data = {
+    type: 'FeatureCollection',
+    features: perimeters
+      .map(d => {
+        d.properties.diff = differenceInDays(date, d.properties.date);
+        d.properties.opacity = opacity(d.properties.diff);
+        return d;
+      })
+      .filter(d => d.properties.diff >= 0)
+  };
 
   return (
     <MapGL

@@ -2,11 +2,11 @@ import './Controls.css';
 import { useState, useEffect } from 'react';
 import format from 'date-fns/format';
 import Chart from './Chart';
-import { dateRange } from '../data';
+import { dateRange, cumulative } from '../data';
 
 const formatHa = n => `${Math.round(n).toLocaleString()} ha`;
 
-const Controls = ({ date, setDate, areas }) => {
+const Controls = ({ date, setDate }) => {
   const [playing, setPlaying] = useState(false);
 
   const changeDate = increment => {
@@ -27,9 +27,7 @@ const Controls = ({ date, setDate, areas }) => {
     return () => clearInterval(interval);
   });
 
-  const { areaToday, areaCumulative } = areas
-    .reverse()
-    .find(d => d.date >= date);
+  const today = cumulative.reverse().find(d => d.date >= date);
 
   return (
     <div className='panel'>
@@ -53,14 +51,14 @@ const Controls = ({ date, setDate, areas }) => {
         <div className='stats'>
           <div>
             <span className='label'>Fire area this day</span>
-            <span>{formatHa(areaToday)}</span>
+            <span>{formatHa(today.areaToday)}</span>
           </div>
           <div>
             <span className='label'>Total fire area</span>
-            <span>{formatHa(areaCumulative)}</span>
+            <span>{formatHa(today.areaCumulative)}</span>
           </div>
         </div>
-        <Chart data={areas} date={date} />
+        <Chart data={cumulative} date={date} />
       </div>
     </div>
   );
