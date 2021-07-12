@@ -1,7 +1,6 @@
 import { feature } from 'topojson-client';
 import { extent, rollups, sum, cumsum, zip } from 'd3-array';
 import perimeter from './perimeters.json';
-import { lastUpdated } from './lastUpdated.json';
 
 let { features } = feature(perimeter, 'progression');
 
@@ -30,5 +29,3 @@ export const cumulative = zip(
   areaToday,
   areaCumulative
 }));
-
-export const updated = new Date(lastUpdated);

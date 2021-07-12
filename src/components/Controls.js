@@ -1,10 +1,13 @@
 import './Controls.css';
 import { useState, useEffect } from 'react';
 import format from 'date-fns/format';
+import preval from 'preval.macro';
 import Chart from './Chart';
-import { dateRange, cumulative, updated } from '../data';
+import { dateRange, cumulative } from '../data';
 
 const formatHa = n => `${Math.round(n).toLocaleString()} ha`;
+
+const lastUpdated = preval`module.exports = +new Date();`;
 
 const Controls = ({ date, setDate }) => {
   const [playing, setPlaying] = useState(false);
@@ -60,7 +63,7 @@ const Controls = ({ date, setDate }) => {
         </div>
         <Chart data={cumulative} date={date} />
       </div>
-      <div className='label'>Last updated: {format(updated, 'PPpp')}</div>
+      <div className='label'>Last updated: {format(lastUpdated, 'PPpp')}</div>
     </div>
   );
 };

@@ -20,7 +20,3 @@ const cmd = `-i progression.shp -proj wgs84 -clean -each 'd = DATE + ""; this.pr
 const { 'out.json': output } = await mapshaper.applyCommands(cmd, input);
 
 writeFileSync('src/data/perimeters.json', output);
-writeFileSync(
-  'src/data/lastUpdated.json',
-  JSON.stringify({ lastUpdated: new Date() })
-);
