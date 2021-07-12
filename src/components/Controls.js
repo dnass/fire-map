@@ -9,6 +9,8 @@ const formatHa = n => `${Math.round(n).toLocaleString()} ha`;
 const lastUpdated = preval`module.exports = +new Date();`;
 
 const Controls = ({ date, setDate, dateRange, cumulative }) => {
+  const isLoading = !date;
+
   const [playing, setPlaying] = useState(false);
 
   const changeDate = increment => {
@@ -31,40 +33,48 @@ const Controls = ({ date, setDate, dateRange, cumulative }) => {
 
   const today = cumulative.find(d => d.date >= date);
 
-  return date ? (
+  return (
     <div className='panel'>
-      <div className='date'>{format(date, 'MMM d, yyyy')}</div>
-      <div className='controls'>
-        <button onClick={() => changeDate(-1)}>⏮️</button>
-        <button onClick={() => setPlaying(!playing)}>
-          {playing ? '⏸️' : '▶️'}
-        </button>
-        <button onClick={() => changeDate(1)}>⏭️</button>
-        <input
-          type='range'
-          min={+dateRange[0]}
-          max={+dateRange[1]}
-          step={86400000}
-          value={date}
-          onChange={e => setDate(+e.target.value)}
-        />
-      </div>
-      <div className='controls'>
-        <div className='stats'>
-          <div>
-            <span className='label'>Fire area this day</span>
-            <span>{formatHa(today.areaToday)}</span>
+      {isLoading ? (
+        <div className='date'>Loading...</div>
+      ) : (
+        <>
+          <div className='date'>{format(date, 'MMM d, yyyy')}</div>
+          <div className='controls'>
+            <button onClick={() => changeDate(-1)}>⏮️</button>
+            <button onClick={() => setPlaying(!playing)}>
+              {playing ? '⏸️' : '▶️'}
+            </button>
+            <button onClick={() => changeDate(1)}>⏭️</button>
+            <input
+              type='range'
+              min={+dateRange[0]}
+              max={+dateRange[1]}
+              step={86400000}
+              value={date}
+              onChange={e => setDate(+e.target.value)}
+            />
           </div>
-          <div>
-            <span className='label'>Total fire area</span>
-            <span>{formatHa(today.areaCumulative)}</span>
+          <div className='controls'>
+            <div className='stats'>
+              <div>
+                <span className='label'>Fire area this day</span>
+                <span>{formatHa(today.areaToday)}</span>
+              </div>
+              <div>
+                <span className='label'>Total fire area</span>
+                <span>{formatHa(today.areaCumulative)}</span>
+              </div>
+            </div>
+            <Chart {...{ data: cumulative, date, dateRange }} />
           </div>
-        </div>
-        <Chart {...{ data: cumulative, date, dateRange }} />
-      </div>
-      <div className='label'>Last updated: {format(lastUpdated, 'PPpp')}</div>
+          <div className='label'>
+            Last updated: {format(lastUpdated, 'PPpp')}
+          </div>
+        </>
+      )}
     </div>
-  ) : null;
+  );
 };
 
 export default Controls;
