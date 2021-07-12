@@ -27,7 +27,7 @@ const Controls = ({ date, setDate }) => {
     return () => clearInterval(interval);
   });
 
-  const today = cumulative.reverse().find(d => d.date >= date);
+  const today = cumulative.find(d => d.date >= date);
 
   return (
     <div className='panel'>
