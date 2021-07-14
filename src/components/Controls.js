@@ -8,7 +8,7 @@ const formatHa = n => `${Math.round(n).toLocaleString()} ha`;
 
 const lastUpdated = preval`module.exports = +new Date();`;
 
-const Controls = ({ date, setDate, dateRange, cumulative }) => {
+const Controls = ({ date, setDate, dateRange, cumulative, visibleArea }) => {
   const isLoading = !date;
 
   const [playing, setPlaying] = useState(false);
@@ -65,11 +65,15 @@ const Controls = ({ date, setDate, dateRange, cumulative }) => {
                 <span className='label'>Total fire area</span>
                 <span>{formatHa(today.areaCumulative)}</span>
               </div>
+              {/* <div>
+                <span className='label'>Visible fire area</span>
+                <span>{formatHa(visibleArea)}</span>
+              </div> */}
             </div>
             <Chart {...{ data: cumulative, date, dateRange }} />
           </div>
           <div className='label'>
-            Last updated: {format(lastUpdated, 'PPpp')}
+            Last updated: {format(lastUpdated, 'MMM d, yyyy h:mm aaa')}
           </div>
         </>
       )}

@@ -1,5 +1,5 @@
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import MapGL, {
   Source,
   Layer,
@@ -16,7 +16,9 @@ const MAPBOX_TOKEN =
 
 const opacity = scaleLinear().domain([0, 7]).range([0.9, 0.3]).clamp(true);
 
-const Map = ({ date, perimeters }) => {
+const Map = ({ date, perimeters, setVisibleArea }) => {
+  const ref = useRef();
+
   const [viewport, setViewport] = useState(
     new WebMercatorViewport({
       width: window.innerWidth,
@@ -26,6 +28,20 @@ const Map = ({ date, perimeters }) => {
       [-61, 63]
     ])
   );
+
+  const updateVisibleArea = () => {
+    const map = ref.current.getMap();
+
+    if (!map.loaded() || !map.getLayer('perimeter-fill')) return;
+
+    const areas = ref.current
+      .queryRenderedFeatures(null, { layers: ['perimeter-fill'] })
+      .map(d => d.properties.area);
+
+    const total = [...new Set(areas)].reduce((sum, d) => sum + d, 0);
+
+    setVisibleArea(total);
+  };
 
   const data = {
     type: 'FeatureCollection',
@@ -45,8 +61,10 @@ const Map = ({ date, perimeters }) => {
       height='100%'
       mapStyle='mapbox://styles/mapbox/dark-v9'
       onViewportChange={setViewport}
+      onLoad={() => ref.current.getMap().on('render', updateVisibleArea)}
       mapboxApiAccessToken={MAPBOX_TOKEN}
       attributionControl={false}
+      ref={ref}
     >
       <GeolocateControl
         showUserLocation={false}
@@ -55,7 +73,7 @@ const Map = ({ date, perimeters }) => {
       />
       <Source type='geojson' data={data}>
         <Layer
-          id='outerfill'
+          id='perimeter-fill'
           type='fill'
           paint={{
             'fill-color': 'tomato',
@@ -66,7 +84,7 @@ const Map = ({ date, perimeters }) => {
         {[10, 7, 4, 1].map(width => (
           <Layer
             key={width}
-            id={`line-${width}`}
+            id={`perimeter-line-${width}`}
             type='line'
             paint={{
               'line-blur': width,
@@ -76,7 +94,7 @@ const Map = ({ date, perimeters }) => {
                 'step',
                 ['zoom'],
                 0,
-                7,
+                6,
                 ['case', ['==', ['get', 'opacity'], 0.9], 0.7, 0]
               ]
             }}
@@ -106,9 +124,7 @@ const Map = ({ date, perimeters }) => {
           fontFamily: 'sans-serif',
           fontSize: 12
         }}
-        customAttribution={
-          'By <a href="https://danielnass.net">Daniel Nass</a> | Data from <a href="https://cwfis.cfs.nrcan.gc.ca/index.php/datamart/metadata/fm3buffered">Canadian Forest Service</a>'
-        }
+        customAttribution='By <a href="https://danielnass.net">Daniel Nass</a> | Data from <a href="https://cwfis.cfs.nrcan.gc.ca/index.php/datamart/metadata/fm3buffered">Canadian Forest Service</a>'
       />
     </MapGL>
   );

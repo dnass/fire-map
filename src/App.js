@@ -9,6 +9,7 @@ const App = () => {
   const [dateRange, setDateRange] = useState([]);
   const [cumulative, setCumulative] = useState([]);
   const [date, setDate] = useState();
+  const [visibleArea, setVisibleArea] = useState();
 
   useEffect(() => {
     (async () => {
@@ -24,8 +25,8 @@ const App = () => {
 
   return (
     <div className='App'>
-      <Controls {...{ date, setDate, dateRange, cumulative }} />
-      <Map {...{ date, perimeters }} />
+      <Controls {...{ date, setDate, dateRange, cumulative, visibleArea }} />
+      <Map {...{ date, perimeters, setVisibleArea }} />
     </div>
   );
 };

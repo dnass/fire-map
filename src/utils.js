@@ -4,9 +4,9 @@ import { extent, rollups, sum, cumsum, zip } from 'd3-array';
 export const parseData = data => {
   let { features } = feature(data, 'progression');
 
-  features.forEach(
-    d => (d.properties.date = +new Date(`${d.properties.date}T00:00:00`))
-  );
+  features.forEach(d => {
+    d.properties.date = +new Date(`${d.properties.date}T00:00:00`);
+  });
 
   const perimeters = features.sort(
     (a, b) => a.properties.date - b.properties.date
