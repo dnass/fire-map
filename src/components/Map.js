@@ -71,7 +71,7 @@ const Map = ({ perimeters = [], active = [], date, setVisibleArea }) => {
       height='100%'
       mapStyle='mapbox://styles/mapbox/dark-v9'
       onViewportChange={setViewport}
-      onLoad={() => ref.current.getMap().on('render', updateVisibleArea)}
+      // onLoad={() => ref.current.getMap().on('render', updateVisibleArea)}
       mapboxApiAccessToken={MAPBOX_TOKEN}
       attributionControl={false}
       ref={ref}
