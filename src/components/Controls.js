@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import format from 'date-fns/format';
 import preval from 'preval.macro';
 import Chart from './Chart';
+import { loop } from '../utils';
 
 const formatHa = n => `${Math.round(n).toLocaleString()} ha`;
 
@@ -20,15 +21,13 @@ const Controls = ({ date, setDate, dateRange, cumulative, visibleArea }) => {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    return loop(() => {
       if (playing && date < dateRange[1]) {
         changeDate(1);
       } else {
         setPlaying(false);
       }
     }, 250);
-
-    return () => clearInterval(interval);
   });
 
   const today = cumulative.find(d => d.date >= date);

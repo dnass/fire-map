@@ -9,7 +9,6 @@ import MapGL, {
   WebMercatorViewport
 } from 'react-map-gl';
 import { scaleLinear } from 'd3-scale';
-import differenceInDays from 'date-fns/differenceInDays';
 
 const MAPBOX_TOKEN =
   'pk.eyJ1IjoiZG5sbnNzIiwiYSI6ImNrcXk0b2w0ejE0eGgyc3RmMGhhaXV5MjYifQ.ZLXTR3Qb8ZLP9zSit_Rz0w';
@@ -47,7 +46,7 @@ const Map = ({ perimeters = [], active = [], date, setVisibleArea }) => {
     type: 'FeatureCollection',
     features: perimeters
       .map(d => {
-        d.properties.diff = differenceInDays(date, d.properties.date);
+        d.properties.diff = (date - d.properties.date) / 86400000;
         d.properties.opacity = opacity(d.properties.diff);
         return d;
       })
@@ -117,11 +116,12 @@ const Map = ({ perimeters = [], active = [], date, setVisibleArea }) => {
           id='labels'
           type='symbol'
           paint={{
-            'text-color': 'rgba(255, 255, 255, 0.9)',
+            'text-color': '#fff',
             'text-halo-color': '#222',
-            'text-halo-width': 1
+            'text-halo-width': 1,
+            'text-opacity': ['step', ['zoom'], 0, 5, 0.8]
           }}
-          layout={{ 'text-field': ['get', 'name'], 'text-size': 12 }}
+          layout={{ 'text-field': ['get', 'name'], 'text-size': 11 }}
         />
       </Source>
       <Source type='raster-dem' url='mapbox://mapbox.mapbox-terrain-dem-v1'>

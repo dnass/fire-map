@@ -26,6 +26,15 @@
   cursor: pointer;
 }
 
+.controls button:first-child {
+  padding-left: 0px;
+}
+
+.controls input {
+  margin: 0 0 0 8px;
+  width: 140px;
+}
+
 .stats {
   width: 110px;
 }

@@ -22,7 +22,7 @@ const { 'out.json': output } = await mapshaper.applyCommands(cmd, input);
 writeFileSync('src/data/perimeters.json', output);
 
 const ACTIVE_URL =
-  'https://cwfis.cfs.nrcan.gc.ca/geoserver/public/wfs?SERVICE=WFS&REQUEST=GetFeature&outputFormat=application%2Fjson&TYPENAME=public%3Aactivefires_current&cql_filter=hectares > 500';
+  'https://cwfis.cfs.nrcan.gc.ca/geoserver/public/wfs?SERVICE=WFS&REQUEST=GetFeature&outputFormat=application%2Fjson&TYPENAME=public%3Aactivefires_current&cql_filter=hectares > 200';
 
 const res = await fetch(ACTIVE_URL);
 
@@ -30,6 +30,7 @@ const { features } = await res.json();
 
 const active = features
   .filter(d => !['nrcc', 'nwcc', 'ak'].includes(d.properties.agency))
+  .sort((a, b) => b.properties.hectares - a.properties.hectares)
   .map(d => ({
     coordinates: [d.properties.lon, d.properties.lat],
     name: d.properties.firename,
