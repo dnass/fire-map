@@ -7,6 +7,7 @@
     "d3-array": "^3.0.1",
     "d3-scale": "^4.0.0",
     "d3-shape": "^3.0.1",
+    "date-fns": "^2.22.1",
     "ga-4-react": "^0.1.281",
     "mapshaper": "^0.5.61",
     "node-fetch": "^2.6.1",
