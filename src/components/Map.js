@@ -16,7 +16,7 @@ const MAPBOX_TOKEN =
 
 const opacity = scaleLinear().domain([0, 7]).range([0.9, 0.3]).clamp(true);
 
-const Map = ({ date, perimeters, setVisibleArea }) => {
+const Map = ({ perimeters = [], active = [], date, setVisibleArea }) => {
   const ref = useRef();
 
   const [viewport, setViewport] = useState(
@@ -52,6 +52,16 @@ const Map = ({ date, perimeters, setVisibleArea }) => {
         return d;
       })
       .filter(d => d.properties.diff >= 0)
+  };
+
+  const labelData = {
+    type: 'FeatureCollection',
+    features: active
+      .map(({ coordinates, ...properties }) => ({
+        geometry: { type: 'Point', coordinates },
+        properties
+      }))
+      .filter(d => d.properties.startDate <= date)
   };
 
   return (
@@ -101,6 +111,18 @@ const Map = ({ date, perimeters, setVisibleArea }) => {
             layout={{ 'line-join': 'bevel' }}
           />
         ))}
+      </Source>
+      <Source type='geojson' data={labelData}>
+        <Layer
+          id='labels'
+          type='symbol'
+          paint={{
+            'text-color': 'rgba(255, 255, 255, 0.9)',
+            'text-halo-color': '#222',
+            'text-halo-width': 1
+          }}
+          layout={{ 'text-field': ['get', 'name'], 'text-size': 12 }}
+        />
       </Source>
       <Source type='raster-dem' url='mapbox://mapbox.mapbox-terrain-dem-v1'>
         <Layer

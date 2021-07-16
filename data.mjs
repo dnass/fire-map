@@ -20,3 +20,20 @@ const cmd = `-i progression.shp -proj wgs84 -clean -each 'd = DATE + ""; this.pr
 const { 'out.json': output } = await mapshaper.applyCommands(cmd, input);
 
 writeFileSync('src/data/perimeters.json', output);
+
+const ACTIVE_URL =
+  'https://cwfis.cfs.nrcan.gc.ca/geoserver/public/wfs?SERVICE=WFS&REQUEST=GetFeature&outputFormat=application%2Fjson&TYPENAME=public%3Aactivefires_current&cql_filter=hectares > 500';
+
+const res = await fetch(ACTIVE_URL);
+
+const { features } = await res.json();
+
+const active = features
+  .filter(d => !['nrcc', 'nwcc', 'ak'].includes(d.properties.agency))
+  .map(d => ({
+    coordinates: [d.properties.lon, d.properties.lat],
+    name: d.properties.firename,
+    startDate: d.properties.startdate
+  }));
+
+writeFileSync('src/data/active.json', JSON.stringify(active));
