@@ -5,6 +5,8 @@
   "dependencies": {
     "@craco/craco": "^6.2.0",
     "d3-array": "^3.0.1",
+    "d3-ease": "^3.0.1",
+    "d3-interpolate": "^2.0.1",
     "d3-scale": "^4.0.0",
     "d3-shape": "^3.0.1",
     "date-fns": "^2.22.1",
@@ -12,8 +14,10 @@
     "mapshaper": "^0.5.61",
     "node-fetch": "^2.6.1",
     "react": "^17.0.2",
+    "react-datepicker": "^4.1.1",
     "react-dom": "^17.0.2",
     "react-map-gl": "^6.1.16",
+    "react-map-gl-geocoder": "^2.1.7",
     "react-scripts": "4.0.3",
     "topojson-client": "^3.1.0"
   },

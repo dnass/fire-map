@@ -4,12 +4,20 @@
   left: 0;
   padding: 8px 12px;
   z-index: 1;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.8);
   color: white;
   display: flex;
   flex-direction: column;
   font-family: sans-serif;
 }
+
+/* @media (max-width: 640px) {
+  .panel {
+    top: 50px;
+    left: 0;
+    right: initial;
+  }
+} */
 
 .controls {
   display: flex;
@@ -17,7 +25,7 @@
   font-size: 15px;
 }
 
-.controls button {
+button {
   appearance: none;
   padding: 4px;
   background-color: transparent;
@@ -35,6 +43,29 @@
   width: 140px;
 }
 
+.button-group {
+  margin-bottom: 2px;
+  display: flex;
+  justify-content: center;
+}
+
+.button-group .toggle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  padding: 0 3px !important;
+  margin: 0 2px;
+}
+
+.button-group .toggle:hover {
+  color: white;
+}
+
+.button-group .toggle.active {
+  font-weight: bold;
+  color: black;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
 .stats {
   width: 110px;
 }
@@ -42,6 +73,21 @@
 .date {
   font-weight: bold;
   font-size: 1.15em;
+  appearance: none;
+  background-color: transparent;
+  color: white;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.date:hover {
+  opacity: 0.9;
+}
+
+.date:after {
+  content: ' ▼';
+  font-size: 0.6em;
 }
 
 .controls span {
@@ -53,3 +99,19 @@
   margin-top: 3px;
   opacity: 0.8;
 }
+
+/* 
+.mapboxgl-ctrl-geocoder--input {
+  height: 29px;
+  font-size: 15px;
+  width: 200px;
+  padding: 6px 0px 6px 35px;
+}
+
+.mapboxgl-ctrl-geocoder--icon {
+  top: 5px;
+}
+
+.mapboxgl-ctrl-geocoder--icon-close {
+  margin-top: 0;
+} */

@@ -1,5 +1,5 @@
 import { scaleLinear } from 'd3-scale';
-import { area } from 'd3-shape';
+import { area, curveStepAfter } from 'd3-shape';
 import { extent } from 'd3-array';
 
 const width = 128,
@@ -15,7 +15,8 @@ const Chart = ({ data, date, dateRange }) => {
   const path = area()
     .x(({ date }) => x(date))
     .y0(() => height)
-    .y1(({ areaCumulative }) => y(areaCumulative));
+    .y1(({ areaCumulative }) => y(areaCumulative))
+    .curve(curveStepAfter);
 
   return (
     <svg width={width} height={height}>

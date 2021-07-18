@@ -1,5 +1,7 @@
 import './Controls.css';
-import { useState, useEffect } from 'react';
+import 'react-datepicker/dist/react-datepicker.css';
+import { useState, useEffect, forwardRef } from 'react';
+import DatePicker from 'react-datepicker';
 import format from 'date-fns/format';
 import preval from 'preval.macro';
 import Chart from './Chart';
@@ -9,16 +11,25 @@ const formatHa = n => `${Math.round(n).toLocaleString()} ha`;
 
 const lastUpdated = preval`module.exports = +new Date();`;
 
-const Controls = ({ date, setDate, dateRange, cumulative, visibleArea }) => {
+const Controls = ({
+  date,
+  setDate,
+  dateRange,
+  cumulative,
+  selected,
+  setSelected
+}) => {
   const isLoading = !date;
 
   const [playing, setPlaying] = useState(false);
 
-  const changeDate = increment => {
-    const newDate = date + increment * 86400000;
-    if (increment > 0) setDate(Math.min(dateRange[1], newDate));
-    else if (increment < 0) setDate(Math.max(dateRange[0], newDate));
-  };
+  const changeDate = increment =>
+    setDate(date =>
+      Math.min(
+        dateRange[1],
+        Math.max(dateRange[0], date + increment * 86400000)
+      )
+    );
 
   useEffect(() => {
     return loop(() => {
@@ -30,15 +41,29 @@ const Controls = ({ date, setDate, dateRange, cumulative, visibleArea }) => {
     }, 250);
   });
 
-  const today = cumulative.find(d => d.date >= date);
+  const { areaToday = 0, areaCumulative = 0 } =
+    [...cumulative].reverse().find(d => d.date <= date) || {};
+
+  const DateInput = forwardRef(({ value, onClick }, ref) => (
+    <button className='date' onClick={onClick} ref={ref}>
+      {value}
+    </button>
+  ));
 
   return (
     <div className='panel'>
       {isLoading ? (
-        <div className='date'>Loading...</div>
+        <div>Loading data...</div>
       ) : (
         <>
-          <div className='date'>{format(date, 'MMM d, yyyy')}</div>
+          <DatePicker
+            selected={date}
+            onChange={date => setDate(+date)}
+            minDate={dateRange[0]}
+            maxDate={dateRange[1]}
+            dateFormat='MMM d, yyyy'
+            customInput={<DateInput />}
+          />
           <div className='controls'>
             <button onClick={() => changeDate(-1)}>⏮️</button>
             <button onClick={() => setPlaying(!playing)}>
@@ -54,22 +79,35 @@ const Controls = ({ date, setDate, dateRange, cumulative, visibleArea }) => {
               onChange={e => setDate(+e.target.value)}
             />
           </div>
+          <div className='button-group'>
+            {['Total area', 'In view'].map(label => (
+              <button
+                key={label}
+                onClick={() => setSelected(label)}
+                className={`toggle ${label === selected ? 'active' : ''}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <div className='controls'>
-            <div className='stats'>
-              <div>
-                <span className='label'>Fire area this day</span>
-                <span>{formatHa(today.areaToday)}</span>
-              </div>
-              <div>
-                <span className='label'>Total fire area</span>
-                <span>{formatHa(today.areaCumulative)}</span>
-              </div>
-              {/* <div>
-                <span className='label'>Visible fire area</span>
-                <span>{formatHa(visibleArea)}</span>
-              </div> */}
-            </div>
-            <Chart {...{ data: cumulative, date, dateRange }} />
+            {cumulative.length ? (
+              <>
+                <div className='stats'>
+                  <div>
+                    <span className='label'>{format(date, 'MMM d')} area</span>
+                    <span>{formatHa(areaToday)}</span>
+                  </div>
+                  <div>
+                    <span className='label'>YTD area</span>
+                    <span>{formatHa(areaCumulative)}</span>
+                  </div>
+                </div>
+                <Chart {...{ data: cumulative, date, dateRange }} />
+              </>
+            ) : (
+              <>No fires in view.</>
+            )}
           </div>
           <div className='label'>
             Last updated: {format(lastUpdated, 'MMM d, yyyy h:mm aaa')}
