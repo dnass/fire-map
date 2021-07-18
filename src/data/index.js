@@ -9,9 +9,12 @@ features.forEach(d => {
   d.properties.date = +new Date(`${d.properties.date}T00:00:00`);
 });
 
-const perimeters = features.sort(
-  (a, b) => a.properties.date - b.properties.date
-);
+const perimeters = features
+  .sort((a, b) => a.properties.date - b.properties.date)
+  .map((d, i) => {
+    d.properties.id = i;
+    return d;
+  });
 
 const dateRange = extent(features, d => +d.properties.date);
 

@@ -42,26 +42,10 @@ const Map = ({ perimeters = [], active = [], date, setVisibleArea }) => {
     setVisibleArea(total);
   };
 
-  const data = {
-    type: 'FeatureCollection',
-    features: perimeters
-      .map(d => {
-        d.properties.diff = (date - d.properties.date) / 86400000;
-        d.properties.opacity = opacity(d.properties.diff);
-        return d;
-      })
-      .filter(d => d.properties.diff >= 0)
-  };
-
-  const labelData = {
-    type: 'FeatureCollection',
-    features: active
-      .map(({ coordinates, ...properties }) => ({
-        geometry: { type: 'Point', coordinates },
-        properties
-      }))
-      .filter(d => d.properties.startDate <= date)
-  };
+  const opacities = perimeters.map(d => {
+    const diff = (date - d.properties.date) / 86400000;
+    return diff < 0 ? 0 : opacity(diff);
+  });
 
   return (
     <MapGL
@@ -80,17 +64,20 @@ const Map = ({ perimeters = [], active = [], date, setVisibleArea }) => {
         fitBoundsOptions={{ maxZoom: 8 }}
         style={{ right: 10, top: 10 }}
       />
-      <Source type='geojson' data={data}>
+      <Source
+        type='geojson'
+        data={{ type: 'FeatureCollection', features: perimeters }}
+      >
         <Layer
           id='perimeter-fill'
           type='fill'
           paint={{
             'fill-color': 'tomato',
             'fill-outline-color': 'rgba(0,0,0,0)',
-            'fill-opacity': ['get', 'opacity']
+            'fill-opacity': ['at', ['get', 'id'], ['literal', opacities]]
           }}
         />
-        {[10, 7, 4, 1].map(width => (
+        {[10, 7, 1].map(width => (
           <Layer
             key={width}
             id={`perimeter-line-${width}`}
@@ -104,14 +91,28 @@ const Map = ({ perimeters = [], active = [], date, setVisibleArea }) => {
                 ['zoom'],
                 0,
                 6,
-                ['case', ['==', ['get', 'opacity'], 0.9], 0.7, 0]
+                [
+                  'case',
+                  ['==', ['at', ['get', 'id'], ['literal', opacities]], 0.9],
+                  0.7,
+                  0
+                ]
               ]
             }}
             layout={{ 'line-join': 'bevel' }}
           />
         ))}
       </Source>
-      <Source type='geojson' data={labelData}>
+      <Source
+        type='geojson'
+        data={{
+          type: 'FeatureCollection',
+          features: active.map(({ coordinates, ...properties }) => ({
+            geometry: { type: 'Point', coordinates },
+            properties
+          }))
+        }}
+      >
         <Layer
           id='labels'
           type='symbol'
@@ -122,6 +123,17 @@ const Map = ({ perimeters = [], active = [], date, setVisibleArea }) => {
             'text-opacity': ['step', ['zoom'], 0, 5, 0.8]
           }}
           layout={{ 'text-field': ['get', 'name'], 'text-size': 11 }}
+          filter={
+            active.length
+              ? [
+                  'match',
+                  ['get', 'name'],
+                  active.filter(d => d.startDate <= date).map(d => d.name),
+                  true,
+                  false
+                ]
+              : ['to-boolean', 'true']
+          }
         />
       </Source>
       <Source type='raster-dem' url='mapbox://mapbox.mapbox-terrain-dem-v1'>
