@@ -1,5 +1,5 @@
 import 'mapbox-gl/dist/mapbox-gl.css';
-import 'react-map-gl-geocoder/dist/mapbox-gl-geocoder.css';
+// import 'react-map-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import { useState, useRef } from 'react';
 import MapGL, {
   Source,
@@ -9,7 +9,7 @@ import MapGL, {
   ScaleControl,
   WebMercatorViewport
 } from 'react-map-gl';
-import Geocoder from 'react-map-gl-geocoder';
+// import Geocoder from 'react-map-gl-geocoder';
 import { scaleLinear } from 'd3-scale';
 import { easeCubicOut } from 'd3-ease';
 import { easeInterpolate } from '../utils';
@@ -23,9 +23,15 @@ const opacity = scaleLinear()
   .interpolate(easeInterpolate(easeCubicOut))
   .clamp(true);
 
-const Map = ({ perimeters = [], active = [], date, updateVisibleArea }) => {
+const Map = ({
+  perimeters = [],
+  active = [],
+  date,
+  updateVisibleArea,
+  setBounds
+}) => {
   const mapRef = useRef();
-  const geocoderRef = useRef();
+  // const geocoderRef = useRef();
 
   const [viewport, setViewport] = useState(
     new WebMercatorViewport({
@@ -36,6 +42,18 @@ const Map = ({ perimeters = [], active = [], date, updateVisibleArea }) => {
       [-61, 63]
     ])
   );
+
+  const onViewportChange = viewport => {
+    setViewport(viewport);
+
+    const bounds = new WebMercatorViewport({
+      width: window.innerWidth,
+      height: window.innerHeight,
+      ...viewport
+    }).getBounds();
+
+    setBounds(bounds);
+  };
 
   const opacities = perimeters.map(d => {
     const diff = (date - d.properties.date) / 86400000;
@@ -55,7 +73,7 @@ const Map = ({ perimeters = [], active = [], date, updateVisibleArea }) => {
         width='100%'
         height='100%'
         mapStyle='mapbox://styles/mapbox/dark-v9'
-        onViewportChange={setViewport}
+        onViewportChange={onViewportChange}
         onLoad={() => mapRef.current.getMap().on('render', updateVisibleArea)}
         mapboxApiAccessToken={MAPBOX_TOKEN}
         attributionControl={false}

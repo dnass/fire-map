@@ -2,6 +2,7 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import Map from './components/Map';
 import Controls from './components/Controls';
+// import Minimap from './components/Minimap';
 import { calculateCumulative } from './utils';
 
 const App = () => {
@@ -9,6 +10,7 @@ const App = () => {
   const [date, setDate] = useState();
   const [visible, setVisible] = useState([]);
   const [selected, setSelected] = useState('Total area');
+  const [bounds, setBounds] = useState([[], []]);
 
   useEffect(() => {
     (async () => setData(await import('./data')))();
@@ -41,7 +43,8 @@ const App = () => {
         {...{ date, setDate, dateRange, selected, setSelected }}
         cumulative={selected === 'Total area' ? cumulative : visible}
       />
-      <Map {...{ date, perimeters, active, updateVisibleArea }} />
+      {/* <Minimap {...{ bounds }} /> */}
+      <Map {...{ date, perimeters, active, updateVisibleArea, setBounds }} />
     </div>
   );
 };

@@ -79,7 +79,7 @@ const Controls = ({
               onChange={e => setDate(+e.target.value)}
             />
           </div>
-          <div className='button-group'>
+          {/* <div className='button-group'>
             {['Total area', 'In view'].map(label => (
               <button
                 key={label}
@@ -108,7 +108,7 @@ const Controls = ({
             ) : (
               <>No fires in view.</>
             )}
-          </div>
+          </div> */}
           <div className='label'>
             Last updated: {format(lastUpdated, 'MMM d, yyyy h:mm aaa')}
           </div>
